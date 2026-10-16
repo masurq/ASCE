@@ -9,3 +9,4 @@ Sentinel-2: `B2, B3, B4, B5, B6, B7, B8, B11, B12, NDVI, NDWI, NDBI, SAVI, EVI, 
 
 The manuscript states that S1 GRD IW VV/VH data use GEE-provided orbit update, thermal-noise removal, radiometric calibration and terrain correction, followed by low-quality edge masking and Refined Lee filtering. S2 Level-2A data are cloud/cloud-shadow/low-quality masked; 20-m red-edge/SWIR bands are resampled to 10 m.
 
+HiWet-DBNet is included as a baseline method for comparison with the proposed ASCE framework. The original implementation is publicly available at HiWet-DBNet GitHub. For further details on the model architecture and implementation, please refer to the Mapping hierarchical wetland characteristics by optical-SAR integration with collaborative spatial-spectral-temporal learning.
