@@ -26,18 +26,11 @@ def dtw(x, y, tx=None, ty=None, temporal_penalty=None):
 
 
 def twdtw(x, tx, y, ty, alpha=0.1, beta_days=30.):
-    """Eq. 12; logistic omega is an IMPLEMENTATION DEFAULT, not specified by paper."""
     return dtw(x, y, tx, ty, lambda a,b: float(expit(alpha*(abs(float(a-b))-beta_days))))
 
 
 def asynchronous_enhance(times_opt, x_opt, times_sar, x_sar,
                          before=3, after=6, analog_states=5, max_pair_gap_days=6.):
-    """Eqs. 2-4; native dates retained; SAR is the output observation backbone.
-
-    Historical optical dates are associated with nearest SAR states for computing
-    SAR trajectories; association does not overwrite either acquisition date.
-    max_pair_gap_days and analog_states are documented implementation defaults.
-    """
     to, ts = np.asarray(times_opt, float), np.asarray(times_sar, float)
     xo, xs = np.asarray(x_opt, float), np.asarray(x_sar, float)
     if len(ts) != len(xs) or len(to) != len(xo) or not len(ts):
@@ -80,7 +73,6 @@ def asynchronous_enhance(times_opt, x_opt, times_sar, x_sar,
 
 
 def fisher_weights(train_sequences, y, epsilon=1e-8):
-    """Eq. 7-8; scaler is fitted exclusively on training samples."""
     X = np.asarray(train_sequences, float)
     if X.ndim == 3:
         X = X.mean(axis=1)
@@ -97,11 +89,6 @@ def fisher_weights(train_sequences, y, epsilon=1e-8):
 
 def context_features(sequences, rows, cols, kf, sigma_s=1., sigma_t=1.,
                      neighborhood_radius=1):
-    """Eqs. 5-10; fixed square neighborhood with self and deterministic order.
-
-    Temporal similarity S_T is an implementation-defined normalized cosine
-    similarity of complete trajectories, not explicitly defined in manuscript.
-    """
     X = np.asarray(sequences, float)
     if X.ndim != 3 or not np.isfinite(X).all():
         raise ValueError('Expected finite (pixels,times,features) array')
@@ -133,7 +120,6 @@ def context_features(sequences, rows, cols, kf, sigma_s=1., sigma_t=1.,
 
 
 def refine_class(X, outlier_std=2.):
-    """Eq. 11; mean+2SD exclusion is an implementation default."""
     X = np.asarray(X,float)
     center = X.mean(axis=0)
     d = np.linalg.norm((X-center).reshape(len(X),-1),axis=1)
@@ -147,7 +133,6 @@ def refine_class(X, outlier_std=2.):
 
 
 def weighted_kmedoids(D, weights, k, max_iter=100):
-    """Eq. 13: weighted PAM-style medoid optimization."""
     D=np.asarray(D,float); w=np.asarray(weights,float)
     n=len(D)
     if D.shape!=(n,n) or not 1<=k<=n:
@@ -173,7 +158,6 @@ def weighted_kmedoids(D, weights, k, max_iter=100):
 
 def learn_prototypes(X, times, y, k_candidates=(1,2,3,4), penalty=0.03,
                      outlier_std=2., alpha=.1, beta_days=30.):
-    """Classwise TWDTW weighted k-medoids; penalized K criterion is an implementation default."""
     X=np.asarray(X,float); y=np.asarray(y); times=np.asarray(times,float)
     library=[]; summary={}
     for cls in np.unique(y):
@@ -203,7 +187,6 @@ def prototype_features(X, times, library, alpha=.1, beta_days=30.):
 
 
 def rf_rfe(Xtr,ytr,Xv,yv,n_estimators=200,seed=42,step_fraction=.1,min_features=1):
-    """Validation-guided RF-RFE; step_fraction is an implementation default."""
     active=np.arange(Xtr.shape[1]); best=(active.copy(),-np.inf)
     while len(active)>=min_features:
         rf=RandomForestClassifier(n_estimators=n_estimators,random_state=seed,n_jobs=-1,
@@ -217,7 +200,6 @@ def rf_rfe(Xtr,ytr,Xv,yv,n_estimators=200,seed=42,step_fraction=.1,min_features=
 
 
 class CascadeForest:
-    """OOF cascade avoids in-sample training probability leakage."""
     def __init__(self,n_estimators=200,max_layers=5,seed=42,n_folds=3):
         self.n_estimators=n_estimators; self.max_layers=max_layers
         self.seed=seed; self.n_folds=n_folds; self.layers=[]
